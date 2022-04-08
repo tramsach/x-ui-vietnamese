@@ -63,11 +63,11 @@ if [[ x"${release}" == x"centos" ]]; then
     fi
 elif [[ x"${release}" == x"ubuntu" ]]; then
     if [[ ${os_version} -lt 16 ]]; then
-        echo -e "${red}ui lòng sử dụng hệ điều hành Ubuntu 16 trở lên！${plain}\n" && exit 1
+        echo -e "${red}Vui lòng sử dụng hệ điều hành Ubuntu 16 trở lên！${plain}\n" && exit 1
     fi
 elif [[ x"${release}" == x"debian" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red}ui lòng sử dụng hệ điều hành Debian 8 trở lên！${plain}\n" && exit 1
+        echo -e "${red}Vui lòng sử dụng hệ điều hành Debian 8 trở lên！${plain}\n" && exit 1
     fi
 fi
 
@@ -79,6 +79,26 @@ install_base() {
     fi
 }
 
+#This function will be called when user installed x-ui out of sercurity
+config_after_install() {
+    echo -e "${yellow}Vì lý do bảo mật, bạn PHẢI thay đổi cổng và mật khẩu tài khoản của bạn sau khi cài đặt xong ${plain}"
+    read -p "请设置您的账户名:" config_account
+    echo -e "${yellow}您的账户名将设定为:${config_account}${plain}"
+    read -p "请设置您的账户密码:" config_password
+    echo -e "${yellow}您的账户密码将设定为:${config_password}${plain}"
+    read -p "请设置面板访问端口:" config_port
+    echo -e "${yellow}您的面板访问端口将设定为:${config_port}${plain}"
+    read -p "确认设定完成？[y/n]": config_confirm
+    if [[ x"${config_confirm}" == x"y" || x"${config_confirm}" == x"Y" ]]; then
+        echo -e "${yellow}确认设定,设定中${plain}"
+        /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
+        echo -e "${yellow}账户密码设定完成${plain}"
+        /usr/local/x-ui/x-ui setting -port ${config_port}
+        echo -e "${yellow}面板端口设定完成${plain}"
+    else
+        echo -e "${red}已取消,所有设置项均为默认设置,请及时修改${plain}"
+    fi
+}
 install_x-ui() {
     systemctl stop x-ui
     cd /usr/local/
